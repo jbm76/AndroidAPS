@@ -25,6 +25,7 @@ dependencies {
     implementation(project(":core:ui"))
     implementation(project(":core:validators"))
     implementation(project(":pump:dana"))
+    implementation(kotlin("reflect"))
 
     testImplementation(project(":shared:tests"))
     testImplementation(project(":core:objects"))

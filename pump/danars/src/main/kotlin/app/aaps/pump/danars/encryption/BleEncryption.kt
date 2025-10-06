@@ -3,36 +3,67 @@
 package info.nightscout.androidaps.danars.encryption
 
 import android.content.Context
+import app.aaps.core.interfaces.logging.AAPSLogger
 import app.aaps.pump.danars.encryption.EncryptionType
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class BleEncryption @Inject constructor(private val context: Context) {
+class BleEncryption @Inject constructor(
+    private val context: Context,
+    private val aapsLogger: AAPSLogger
+) {
 
-    fun getEncryptedPacket(opcode: Int, bytes: ByteArray?, deviceName: String?): ByteArray =
-        encryptPacketJni(context, opcode, bytes, deviceName)
+    fun getEncryptedPacket(opcode: Int, bytes: ByteArray?, deviceName: String?): ByteArray {
+        aapsLogger.debug("XXXX getEncryptedPacket opcode: ${opcode.toString(16)}, bytes: ${bytes?.bytesToDec()}, deviceName: $deviceName")
+        val result = encryptPacketJni(context, opcode, bytes, deviceName)
+        aapsLogger.debug("XXXX getEncryptedPacket result: ${result.bytesToDec()}")
+        return result
+    }
 
-    fun getDecryptedPacket(bytes: ByteArray): ByteArray? =
-        decryptPacketJni(context, bytes)
+    fun getDecryptedPacket(bytes: ByteArray): ByteArray? {
+        aapsLogger.debug("XXXX getDecryptedPacket bytes: ${bytes.bytesToDec()}")
+        val result = decryptPacketJni(context, bytes)
+        aapsLogger.debug("XXXX getDecryptedPacket result: ${result?.bytesToDec()}")
+        return result
+    }
 
     fun setPairingKeys(pairingKey: ByteArray, randomPairingKey: ByteArray, randomSyncKey: Byte) {
+        aapsLogger.debug("XXXX setPairingKeys pairingKey: ${pairingKey.bytesToDec()}, randomPairingKey: ${randomPairingKey.bytesToDec()}, randomSyncKey: $randomSyncKey")
         setPairingKeysJni(pairingKey, randomPairingKey, randomSyncKey)
     }
 
     fun setBle5Key(ble5Key: ByteArray) {
+        aapsLogger.debug("XXXX setBle5Key ble5Key: ${ble5Key.bytesToDec()}")
         setBle5KeyJni(ble5Key)
     }
 
     fun setEnhancedEncryption(securityVersion: EncryptionType) {
+        aapsLogger.debug("XXXX setEnhancedEncryption securityVersion: $securityVersion")
         setEnhancedEncryptionJni(securityVersion.ordinal)
     }
 
-    fun encryptSecondLevelPacket(bytes: ByteArray): ByteArray =
-        encryptSecondLevelPacketJni(context, bytes)
+    fun encryptSecondLevelPacket(bytes: ByteArray): ByteArray {
+        aapsLogger.debug("XXXX encryptSecondLevelPacket bytes: ${bytes.bytesToDec()}")
+        val result = encryptSecondLevelPacketJni(context, bytes)
+        aapsLogger.debug("XXXX encryptSecondLevelPacket result: ${result.bytesToDec()}")
+        return result
+    }
 
-    fun decryptSecondLevelPacket(bytes: ByteArray): ByteArray =
-        decryptSecondLevelPacketJni(context, bytes)
+    fun decryptSecondLevelPacket(bytes: ByteArray): ByteArray {
+        aapsLogger.debug("XXXX decryptSecondLevelPacket bytes: ${bytes.bytesToDec()}")
+        val result = decryptSecondLevelPacketJni(context, bytes)
+        aapsLogger.debug("XXXX decryptSecondLevelPacket result: ${result.bytesToDec()}")
+        return result
+    }
+
+
+    fun ByteArray.bytesToDec(): String {
+        var chars = "("
+        for (j in indices) chars += "${get(j)}, "
+        chars += ")"
+        return chars
+    }
 
     companion object {
 
